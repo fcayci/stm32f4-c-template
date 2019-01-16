@@ -1,18 +1,24 @@
 /*
- * STM32F407 - C template
- * Toggles LEDs on GPIOD Pins 12, 13, 14, 15.
+ * author: Furkan Cayci
+ * description: STM32F4 - C template
+ * 		toggles LEDs on GPIOD Pins 12, 13, 14, 15
+ *  	compatible STM32F4 Discovery board
+ * 		reference document: RM0090
+ *
+ * This file is just a template to show the necessary steps
+ *   for blinking an LED on an ARM CM4-based board.
+ *   It only includes structs for GPIO and RCC peripherals.
  */
-
 /*************************************************
 * Definitions
 *************************************************/
-// Define some types for readibility
-#define int32_t         int
-#define int16_t         short
+// Define some types for readability
 #define int8_t          char
-#define uint32_t        unsigned int
-#define uint16_t        unsigned short
+#define int16_t         short
+#define int32_t         int
 #define uint8_t         unsigned char
+#define uint16_t        unsigned short
+#define uint32_t        unsigned int
 
 // Define the base addresses for RCC and GPIOD peripherals.
 // You can calculate the addresses relative to periph_base,
@@ -23,32 +29,19 @@
 #define GPIOD_BASE      (PERIPH_BASE + 0x20C00) // GPIOD base address is 0x40020C00
 #define RCC_BASE        (PERIPH_BASE + 0x23800) //   RCC base address is 0x40023800
 
-#define STACKINIT       0x20008000
+// Project related defs.
 #define LEDDELAY        800000
 
 /*
  * Register Addresses
  * We will use the registers from RCC and GPIO, thus we created a struct to
  * bring together all the registers in a module. The list is in order.
+ *
+ * Note: This part is included with a processor specific header.
  */
 
- /* General-purpose I/Os (GPIO)
-  *   page 288 from rm0090
-  */
-typedef struct {
-	uint32_t MODER;      /* Address offset: 0x00 */
-	uint32_t OTYPER;     /* Address offset: 0x04 */
-	uint32_t OSPEEDR;    /* Address offset: 0x08 */
-	uint32_t PUPDR;      /* Address offset: 0x0C */
-	uint32_t IDR;        /* Address offset: 0x10 */
-	uint32_t ODR;        /* Address offset: 0x14 */
-	uint32_t BSRR;       /* Address offset: 0x18 */
-	uint32_t LCKR;       /* Address offset: 0x1C */
-	uint32_t AFRL;       /* Address offset: 0x20 */
-	uint32_t AFRH;       /* Address offset: 0x24 */
-} GPIO_type;
-
-/* Reset and clock control for STM32F405xx/07xx and STM32F415xx/17xx(RCC)
+/*
+ * Reset and Clock Control (RCC)
  *   page 267 from rm0090
  */
 typedef struct {
@@ -86,69 +79,152 @@ typedef struct {
 	uint32_t RESERVED11; /* Address offset: 0x7C */
 	uint32_t SSCGR;      /* Address offset: 0x80 */
 	uint32_t PLLI2SCFGR; /* Address offset: 0x84 */
-
 } RCC_type;
 
-// Function declarations. Add your functions here
-void copy_data(void);
-void nmi_handler(void);
-int32_t main(void);
-void delay(volatile uint32_t s);
+ /*
+  * General-purpose I/Os (GPIO)
+  *   page 288 from rm0090
+  */
+typedef struct {
+	uint32_t MODER;      /* Address offset: 0x00 */
+	uint32_t OTYPER;     /* Address offset: 0x04 */
+	uint32_t OSPEEDR;    /* Address offset: 0x08 */
+	uint32_t PUPDR;      /* Address offset: 0x0C */
+	uint32_t IDR;        /* Address offset: 0x10 */
+	uint32_t ODR;        /* Address offset: 0x14 */
+	uint32_t BSRR;       /* Address offset: 0x18 */
+	uint32_t LCKR;       /* Address offset: 0x1C */
+	uint32_t AFRL;       /* Address offset: 0x20 */
+	uint32_t AFRH;       /* Address offset: 0x24 */
+} GPIO_type;
 
-// This is what we will use to write to ports
+// Create pointers based at the given addresses
 // You can access to each register by using ->
 // e.g. GPIOD->MODER
 // Define one for each of the registers you want to use
 #define GPIOD  ((GPIO_type  *) GPIOD_BASE)
 #define RCC    ((RCC_type   *)   RCC_BASE)
 
+// Function declarations
+void Reset_Handler(void);
+void _init_data(void);
+void Default_Handler(void);
+int32_t main(void);
+void delay(volatile uint32_t);
+
+typedef void (* const intfunc)(void);
+// _stack is defined in the linker script
+extern unsigned long __stack;
+
 /*************************************************
 * Vector Table
 *************************************************/
 // Attribute puts table in beginning of .vector section
 //   which is the beginning of .text section in the linker script
-// Add other vectors in order here
-// Vector table can be found on page 374 in RM0090
-uint32_t (* const vector_table[])
-__attribute__ ((section(".vectors"))) = {
-	((uint32_t *) STACKINIT),          /* 0x00 Stack Pointer */
-	((uint32_t *) main),               /* 0x04 Reset         */
-	((uint32_t *) nmi_handler),        /* 0x08 NMI           */
-	0,                                 /* 0x0C Hardfault     */
-	0,                                 /* 0x10 MemManage     */
+// Change function name to a given exception, or add
+//   processor specific interrupts in order here.
+// For STM32F407 - Vector table can be found on page 374 in RM0090
+__attribute__ ((section(".vectors")))
+void (* const vector_table[])(void) = {
+	(intfunc)((unsigned long)&__stack),	/* 0x000 Stack Pointer */
+	Reset_Handler,               		/* 0x004 Reset         */
+	Default_Handler,					/* 0x008 NMI           */
+	Default_Handler,                    /* 0x00C HardFaullt    */
+	Default_Handler,                    /* 0x010 MemManage     */
+	Default_Handler,                    /* 0x014 BusFault      */
+	Default_Handler,                    /* 0x018 UsageFault    */
+	0,                   			    /* 0x01C Reserved      */
+	0,     				                /* 0x020 Reserved      */
+	0,               			        /* 0x024 Reserved      */
+	0, 				                    /* 0x028 Reserved      */
+	Default_Handler,                    /* 0x02C SVCall        */
+	Default_Handler,                    /* 0x030 Debug Monitor */
+	0,                                  /* 0x034 Reserved      */
+	Default_Handler,                    /* 0x038 PendSV        */
+	Default_Handler                     /* 0x03C SysTick       */
 };
+
+/*
+ * Entry point for the program
+ * initializes data, bss sections and
+ * calls main function.
+ * It doesn't do any FPU initialization
+ *
+ */
+void Reset_Handler(void)
+{
+	/* initialize data and bss sections */
+	_init_data();
+
+	// /* Reset the RCC clock configuration to the default reset state */
+  	// /* Set HSION bit */
+  	// RCC->CR |= (1 << 0);
+
+	// /* Reset CFGR register */
+	// RCC->CFGR = 0x00000000;
+
+	// /* Reset HSEON (16), CSSON (19) and PLLON (24) bits */
+	// RCC->CR &= ~(uint32_t)((1 << 16) | (1 << 19) | (1 << 24));
+
+	// /* Reset PLLCFGR register to reset value */
+	// RCC->PLLCFGR = 0x24003010;
+
+	// /* Reset HSEBYP bit */
+	// RCC->CR &= ~(uint32_t)(1 << 18);
+
+	// /* Disable all interrupts */
+	// RCC->CIR = 0x00000000;
+
+	// main functions
+	main();
+	// Wait forever
+	for (;;);
+}
 
 /*************************************************
 * Copy the data contents from LMA to VMA
+* Initializes data and bss sections
 *************************************************/
-void copy_data(void)
+void _init_data(void)
 {
-	extern char _etext, _sdata, _edata, _sbss, _ebss;
-	char *src = &_etext;
-	char *dst = &_sdata;
+	extern unsigned long __etext, __data_start__, __data_end__, __bss_start__, __bss_end__;
+	unsigned long *src = &__etext;
+	unsigned long *dst = &__data_start__;
 
 	/* ROM has data at end of text; copy it.  */
-	while (dst < &_edata)
+	while (dst < &__data_end__)
 		*dst++ = *src++;
 
-	/* Zero bss.  */
-	for (dst = &_sbss; dst< &_ebss; dst++)
+	/* zero bss.  */
+	for (dst = &__bss_start__; dst< &__bss_end__; dst++)
 		*dst = 0;
 }
 
-// Non-maskable interrupt handler function
-void nmi_handler(void)
+// Default handler function
+void Default_Handler(void)
 {
 	for (;;);  // Wait forever
 }
+
+// initialized data
+volatile uint32_t iarray[4] = {2, 9, 8, 1};
+// uninitialized data
+volatile uint32_t uarray[4];
+// read-only data
+const uint32_t carray[4] = {1, 4, 1, 4};
 
 /*************************************************
 * Main code starts from here
 *************************************************/
 int32_t main(void)
 {
-	// Copy LMA to VMA for data section
-	copy_data();
+	// dummy copy. doesn't actually do anything
+	// added to show where the variables are placed
+	for(int i=0; i<4; i++){
+		iarray[i] = carray[i];
+		uarray[i] = carray[i];
+	}
+
 	// Each module is powered separately. In order to turn on a module
 	// we need to enable the relevant clock.
 	// Set Bit 3 to enable GPIOD clock in AHB1ENR
@@ -187,8 +263,6 @@ int32_t main(void)
 	}
 
 	__asm__("NOP"); // Assembly inline can be used if needed
-
-	// Should never reach here
 	return 0;
 }
 

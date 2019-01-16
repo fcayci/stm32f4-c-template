@@ -6,28 +6,33 @@ INCLUDES = -I.
 
 LINKER_SCRIPT = stm32.ld
 
-CFLAGS += -mcpu=cortex-m4 -mthumb # Processor setup
-# Choose one
+CFLAGS = -mcpu=cortex-m4 -mthumb # processor setup
+CFLAGS += -O0 # optimization is off
+CFLAGS += -g0 # generate debug info
+CFLAGS += -fno-common
+CFLAGS += -Wall # turn on warnings
+CFLAGS += -pedantic # more warnings
+CFLAGS += -Wsign-compare
+CFLAGS += -Wcast-align
+CFLAGS += -Wconversion # neg int const implicitly converted to uint
+CFLAGS += -fsingle-precision-constant
+CFLAGS += -fomit-frame-pointer # do not use fp if not needed
+CFLAGS += -ffunction-sections -fdata-sections
+
+# Chooses the relevant FPU option
+# Note that in this project FPU is not initialized
 CFLAGS += -mfloat-abi=soft # No FP
 #CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16 # Soft FP
 #CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 # Hard FP
 
-CFLAGS += -O0 # Optimization is off
-CFLAGS += -g2 # Generate debug info
-CFLAGS += -fno-common
-CFLAGS += -Wall # Turn on warnings
-#CFLAGS += -pedantic # more warnings
-CFLAGS += -fsingle-precision-constant
-CFLAGS += -Wsign-compare
-CFLAGS += -Wcast-align
-CFLAGS += -Wconversion # neg int const implicitly converted to uint
-CFLAGS += -fomit-frame-pointer # Do not use fp if not needed
-CFLAGS += -ffunction-sections -fdata-sections
+#LDFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16 # Soft FP
+#LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 # Hard FP
 
-LDFLAGS += -march=armv7e-m
-LDFLAGS += -nostartfiles
+LDFLAGS += -march=armv7e-m # processor setup
+LDFLAGS += -nostartfiles # no start files are used
 LDFLAGS += --specs=nosys.specs
-LDFLAGS += -Wl,--gc-sections # Linker garbage collector
+LDFLAGS += -Wl,--gc-sections # linker garbage collector
+LDFLAGS += -Wl,-Map=$(TARGET).map #generate map file
 LDFLAGS += -T$(LINKER_SCRIPT)
 
 CROSS_COMPILE = arm-none-eabi-
