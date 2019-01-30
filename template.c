@@ -126,7 +126,7 @@ extern unsigned long __stack;
 // For STM32F407 - Vector table can be found on page 374 in RM0090
 __attribute__ ((section(".vectors")))
 void (* const vector_table[])(void) = {
-	(intfunc)((unsigned long)&__stack),	/* 0x000 Stack Pointer */
+	(intfunc)((unsigned long)&__stack), /* 0x000 Stack Pointer */
 	Reset_Handler,                      /* 0x004 Reset         */
 	Default_Handler,                    /* 0x008 NMI           */
 	Default_Handler,                    /* 0x00C HardFaullt    */
