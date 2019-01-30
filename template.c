@@ -156,27 +156,28 @@ void Reset_Handler(void)
 	/* initialize data and bss sections */
 	_init_data();
 
-	// /* Reset the RCC clock configuration to the default reset state */
-	  // /* Set HSION bit */
-	  // RCC->CR |= (1 << 0);
+	/* Reset the RCC clock configuration to the default reset state */
+	/* Set HSION bit */
+	RCC->CR |= (1 << 0);
 
-	// /* Reset CFGR register */
-	// RCC->CFGR = 0x00000000;
+	/* Reset CFGR register */
+	RCC->CFGR = 0x00000000;
 
-	// /* Reset HSEON (16), CSSON (19) and PLLON (24) bits */
-	// RCC->CR &= ~(uint32_t)((1 << 16) | (1 << 19) | (1 << 24));
+	/* Reset HSEON (16), CSSON (19) and PLLON (24) bits */
+	RCC->CR &= ~(uint32_t)((1 << 16) | (1 << 19) | (1 << 24));
 
-	// /* Reset PLLCFGR register to reset value */
-	// RCC->PLLCFGR = 0x24003010;
+	/* Reset PLLCFGR register to reset value */
+	RCC->PLLCFGR = 0x24003010;
 
-	// /* Reset HSEBYP bit */
-	// RCC->CR &= ~(uint32_t)(1 << 18);
+	/* Reset HSEBYP bit */
+	RCC->CR &= ~(uint32_t)(1 << 18);
 
-	// /* Disable all interrupts */
-	// RCC->CIR = 0x00000000;
+	/* Disable all interrupts */
+	RCC->CIR = 0x00000000;
 
-	// main functions
+	// main function
 	main();
+
 	// Wait forever
 	for (;;);
 }
