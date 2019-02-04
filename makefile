@@ -8,7 +8,7 @@ LINKER_SCRIPT = stm32.ld
 
 CFLAGS = -mcpu=cortex-m4 -mthumb # processor setup
 CFLAGS += -O0 # optimization is off
-CFLAGS += -g0 # generate debug info
+CFLAGS += -g2 # generate debug info
 CFLAGS += -fno-common
 CFLAGS += -Wall # turn on warnings
 CFLAGS += -pedantic # more warnings
@@ -76,8 +76,6 @@ burn:
 
 debug:
 	@$(DBG) -tui --eval-command="target extended-remote :4242" \
-	--eval-command="layout asm" \
-	--eval-command="layout regs" \
 	 $(TARGET).elf
 
 clean:

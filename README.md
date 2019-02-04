@@ -1,6 +1,6 @@
 # stm32f4-c-template
 
-C template for an Cortex-M4 based board. This project is just a template to show the necessary steps for blinking an LED on an ARM CM4-based board. It is intended to be used for educational purposes.
+C template for an Cortex-M4 based board. This project is just a template to show the necessary steps for blinking an LED on an ARM Cortex M4-based board. It is intended to be used for educational purposes.
 
 It only includes structs for `GPIO` and `RCC` peripherals for the STM32F4 chip. Other peripherals are not added.
 
@@ -22,7 +22,7 @@ Browse into the directory and run `make` to compile.
 Cleaning...
 Building template.c
    text    data     bss     dec     hex filename
-    360      16      16     392     188 template.elf
+    428      16      16     460     1cc template.elf
 Successfully finished...
 ```
 
@@ -41,4 +41,3 @@ You can debug your application using `gdb` by following the steps.
 
 * Run `st-util` from one terminal
 * Run `make debug` from a second terminal to debug the program.
-* You can turn off tui layout with `tui disable` if needed
