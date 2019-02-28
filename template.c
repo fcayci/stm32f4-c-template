@@ -149,7 +149,6 @@ void (* const vector_table[])(void) = {
  * initializes data, bss sections and
  * calls main function.
  * It doesn't do any FPU initialization
- *
  */
 void Reset_Handler(void)
 {

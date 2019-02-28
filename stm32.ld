@@ -1,8 +1,8 @@
-/* linker script for STM32F4 Discovery board */
+/* linker script */
 
 MEMORY
 {
-  FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 1024K
+  FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 1024K
   RAM   (rwx) : ORIGIN = 0x20000000, LENGTH =  128K
 }
 

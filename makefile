@@ -71,12 +71,18 @@ $(TARGET).elf: $(OBJS)
 size: $(TARGET).elf
 	@$(SIZE) $(TARGET).elf
 
-burn:
-	@st-flash write $(TARGET).bin 0x8000000
+disass: $(TARGET).elf
+	@$(OBJDUMP) -d $(TARGET).elf
+
+disass-all: $(TARGET).elf
+	@$(OBJDUMP) -D $(TARGET).elf
 
 debug:
-	@$(DBG) -tui --eval-command="target extended-remote :4242" \
+	@$(DBG) --eval-command="target extended-remote :4242" \
 	 $(TARGET).elf
+
+burn:
+	@st-flash write $(TARGET).bin 0x8000000
 
 clean:
 	@echo "Cleaning..."
@@ -87,4 +93,4 @@ clean:
 	@rm -f $(TARGET).lst
 	@rm -f $(TARGET).o
 
-.PHONY: all build size clean burn debug
+.PHONY: all build size clean burn disass disass-all
