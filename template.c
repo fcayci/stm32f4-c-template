@@ -1,9 +1,9 @@
 /*
  * author: Furkan Cayci
  * description: STM32F4 - C template
- * 		toggles LEDs on GPIOD Pins 12, 13, 14, 15
- *  	compatible STM32F4 Discovery board
- * 		reference document: RM0090
+ *   toggles LEDs on GPIOD Pins 12, 13, 14, 15
+ *   compatible STM32F4 Discovery board
+ *   reference document: RM0090
  *
  * This file is just a template to show the necessary steps
  *   for blinking an LED on an ARM CM4-based board.
@@ -262,7 +262,7 @@ int32_t main(void)
 		GPIOD->ODR ^= 0xF000;  // Toggle LEDs
 	}
 
-	__asm__("NOP"); // Assembly inline can be used if needed
+	__asm("NOP"); // Assembly inline can be used if needed
 	return 0;
 }
 
