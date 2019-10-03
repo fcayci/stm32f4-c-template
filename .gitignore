@@ -4,3 +4,8 @@
 *.hex
 *.map
 *.lst
+.vscode/
+.metadata/
+.settings/
+Debug/
+*.launch
