@@ -244,33 +244,11 @@ void Default_Handler(void)
 	for (;;);  // Wait forever
 }
 
-/*
- *  Create arrays to examine where they are located after the binary is created
- */
-
-// initialized data. uint16_t is declared with 5 elements
-//   to demonstrate memory alignment
-// should go to data section
-volatile uint16_t iarray[5] = {2, 9, 8, 1, 1};
-// uninitialized data
-// should go to bss section
-volatile uint32_t uarray[4];
-// read-only data
-// should go into text section
-const uint32_t carray[4] = {1, 4, 1, 4};
-
 /*************************************************
 * Main code starts from here
 *************************************************/
 int main(void)
 {
-
-	// dummy copy. doesn't actually do anything
-	// added to show where the variables are placed
-	for(int i=0; i<4; i++){
-		iarray[i] = (uint16_t)carray[i];
-		uarray[i] = carray[i];
-	}
 
 	// Each module is powered separately. In order to turn on a module
 	// we need to enable the relevant clock.
